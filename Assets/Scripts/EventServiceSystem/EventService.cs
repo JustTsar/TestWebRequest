@@ -54,15 +54,21 @@ namespace EventServiceSystem
 
             UnityWebRequest unityWebRequest = UnityWebRequest.Post(_serverUrl, _json);
 
+            unityWebRequest.timeout = 5;
+            
             unityWebRequest.SetRequestHeader("Events", "application/json; charset=UFT-8");
 
             yield return unityWebRequest.SendWebRequest();
 
-            if (unityWebRequest.responseCode == 200)
+            if (unityWebRequest.result == UnityWebRequest.Result.Success)
             {
                 _events= (oldEvents.SelectMany(_ => _events, (oldEvent, newEvent) => new {oldEvent, newEvent})
                     .Where(arg => !_events.Contains(arg.oldEvent))
                     .Select(arg => arg.newEvent)).ToList();
+            }
+            else
+            {
+                Debug.LogError("Something wrong");
             }
 
             _sendRequestRoutine = null;
